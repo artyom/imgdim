@@ -11,6 +11,7 @@ import (
 	_ "image/png"
 	"os"
 
+	"github.com/rwcarlsen/goexif/exif"
 	_ "golang.org/x/image/bmp"
 	_ "golang.org/x/image/tiff"
 )
@@ -34,6 +35,26 @@ func dimensions(name string) (width, height int, err error) {
 		return 0, 0, err
 	}
 	defer f.Close()
-	cfg, _, err := image.DecodeConfig(f)
-	return cfg.Width, cfg.Height, err
+	cfg, format, err := image.DecodeConfig(f)
+	if format != "jpeg" {
+		return cfg.Width, cfg.Height, err
+	}
+	if _, err := f.Seek(0, os.SEEK_SET); err != nil {
+		return 0, 0, err
+	}
+	e, err := exif.Decode(f)
+	if err != nil {
+		return cfg.Width, cfg.Height, nil
+	}
+	o, err := e.Get(exif.Orientation)
+	if err != nil || o == nil || len(o.Val) != 2 {
+		return cfg.Width, cfg.Height, nil
+	}
+	for _, x := range o.Val {
+		switch x {
+		case 6, 8: // 90ºCCW, 90ºCW
+			return cfg.Height, cfg.Width, nil
+		}
+	}
+	return cfg.Width, cfg.Height, nil
 }
