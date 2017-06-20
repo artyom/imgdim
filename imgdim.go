@@ -9,7 +9,6 @@ import (
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
-	"log"
 	"os"
 
 	_ "golang.org/x/image/bmp"
@@ -18,20 +17,23 @@ import (
 
 func main() {
 	if len(os.Args) != 2 {
-		log.Fatalf("Usage: %s filename.{jpeg,png,gif,bmp,tiff}", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Usage: %s filename.{jpeg,png,gif,bmp,tiff}\n", os.Args[0])
+		os.Exit(1)
 	}
-	f, err := os.Open(os.Args[1])
+	w, h, err := dimensions(os.Args[1])
 	if err != nil {
-		log.Fatal(err)
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	fmt.Printf("%d,%d\n", w, h)
+}
+
+func dimensions(name string) (width, height int, err error) {
+	f, err := os.Open(name)
+	if err != nil {
+		return 0, 0, err
 	}
 	defer f.Close()
 	cfg, _, err := image.DecodeConfig(f)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("%d,%d\n", cfg.Width, cfg.Height)
-}
-
-func init() {
-	log.SetFlags(0)
+	return cfg.Width, cfg.Height, err
 }
