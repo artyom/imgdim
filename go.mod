@@ -1,6 +1,8 @@
 module github.com/artyom/imgdim
 
+go 1.24.0
+
 require (
-	github.com/rwcarlsen/goexif v0.0.0-20180518182100-8d986c03457a
-	golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81
+	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
+	golang.org/x/image v0.28.0
 )

@@ -9,6 +9,7 @@ import (
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
+	"io"
 	"os"
 
 	"github.com/rwcarlsen/goexif/exif"
@@ -39,7 +40,7 @@ func dimensions(name string) (width, height int, err error) {
 	if format != "jpeg" {
 		return cfg.Width, cfg.Height, err
 	}
-	if _, err := f.Seek(0, os.SEEK_SET); err != nil {
+	if _, err := f.Seek(0, io.SeekStart); err != nil {
 		return 0, 0, err
 	}
 	e, err := exif.Decode(f)
